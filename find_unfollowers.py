@@ -1,5 +1,6 @@
 import argparse
 import instaloader
+from instaloader.exceptions import TwoFactorAuthRequiredException, BadCredentialsException
 
 
 def parse_args():
@@ -21,6 +22,14 @@ def main():
     L = instaloader.Instaloader()
     try:
         L.login(args.username, password)
+    except TwoFactorAuthRequiredException:
+        while True:
+            code = input('Enter 2FA verification code: ')
+            try:
+                L.two_factor_login(code)
+                break
+            except BadCredentialsException as err:
+                print(err)
     except Exception as e:
         raise SystemExit(f'Login failed: {e}')
 
